@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,11 +30,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  //int _counter = 0;
+  DateTime now = DateTime.now();
 
   void _incrementCounter() {
     setState(() {
-      _counter++;
+      now = DateTime.now();
     });
   }
 
@@ -48,10 +50,10 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              'You have pushed the button this many times:',
+              '現在時刻',
             ),
             Text(
-              '$_counter',
+              DateFormat('yyyy-MM-dd(E) hh:mm').format(now),
               style: Theme.of(context).textTheme.headline4,
             ),
           ],
