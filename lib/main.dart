@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -30,10 +30,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  //int _counter = 0;
-  DateTime now = DateTime.now();
+  // ignore: non_constant_identifier_names
+  DateTime attendance_time = DateTime.now();
+  // ignore: non_constant_identifier_names
+  DateTime leave_time = DateTime.now();
+  bool working = false;
 
-  void _incrementCounter() {
+  // ignore: non_constant_identifier_names
+  void get_current_time(now) {
     setState(() {
       now = DateTime.now();
     });
@@ -50,19 +54,70 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              '現在時刻',
+              '出勤時刻',
             ),
             Text(
-              DateFormat('yyyy-MM-dd(E) hh:mm').format(now),
+              DateFormat('yyyy-MM-dd(E) hh:mm').format(attendance_time),
               style: Theme.of(context).textTheme.headline4,
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '退勤時刻',
+            ),
+            Text(
+              DateFormat('yyyy-MM-dd(E) hh:mm').format(leave_time),
+              style: Theme.of(context).textTheme.headline4,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                SizedBox(
+                  // 横幅: 128
+                  width: 128,
+                  // 縦幅: 64
+                  height: 64,
+                  // 出勤ボタン
+                  child: ElevatedButton(
+                    // ボタンをクリックした時の処理
+                    onPressed: working == true
+                        ? null
+                        : () {
+                            setState(() {
+                              working = true;
+                              attendance_time = DateTime.now();
+                            });
+                          },
+                    child: const Text('出勤'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  // 横幅: 128
+                  width: 128,
+                  // 縦幅: 64
+                  height: 64,
+                  // 退勤ボタン
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.red, //ボタンの背景色
+                    ),
+                    // ボタンをクリックした時の処理
+                    onPressed: working == false
+                        ? null
+                        : () {
+                            setState(() {
+                              working = false;
+                              leave_time = DateTime.now();
+                            });
+                          },
+                    child: const Text('退勤'),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }
