@@ -30,11 +30,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  // 出勤時間
   // ignore: non_constant_identifier_names
   DateTime attendance_time = DateTime.now();
+  // 退勤時間
   // ignore: non_constant_identifier_names
   DateTime leave_time = DateTime.now();
+  // 休憩開始時間
+  // ignore: non_constant_identifier_names
+  DateTime rest_time = DateTime.now();
+  // 休憩終了
+  // ignore: non_constant_identifier_names
+  DateTime resume_time = DateTime.now();
   bool working = false;
+  bool resting = false;
 
   // ignore: non_constant_identifier_names
   void get_current_time(now) {
@@ -79,9 +88,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   height: 64,
                   // 出勤ボタン
                   child: ElevatedButton(
-                    // ボタンをクリックした時の処理
+                    // working == false　のときのみボタン有効化
                     onPressed: working == true
                         ? null
+                        // ボタンをクリックした時の処理
                         : () {
                             setState(() {
                               working = true;
@@ -103,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       primary: Colors.red, //ボタンの背景色
                     ),
                     // ボタンをクリックした時の処理
-                    onPressed: working == false
+                    onPressed: (working == false || resting == true)
                         ? null
                         : () {
                             setState(() {
@@ -112,6 +122,57 @@ class _MyHomePageState extends State<MyHomePage> {
                             });
                           },
                     child: const Text('退勤'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                SizedBox(
+                  // 横幅: 128
+                  width: 128,
+                  // 縦幅: 64
+                  height: 64,
+                  // 出勤ボタン
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.grey, //ボタンの背景色
+                    ),
+                    // ボタンをクリックした時の処理
+                    onPressed: (working == false || resting == true)
+                        ? null
+                        : () {
+                            setState(() {
+                              resting = true;
+                              attendance_time = DateTime.now();
+                            });
+                          },
+                    child: const Text('休憩開始'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  // 横幅: 128
+                  width: 128,
+                  // 縦幅: 64
+                  height: 64,
+                  // 退勤ボタン
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.grey, //ボタンの背景色
+                    ),
+                    // ボタンをクリックした時の処理
+                    onPressed: resting == false
+                        ? null
+                        : () {
+                            setState(() {
+                              resting = false;
+                              leave_time = DateTime.now();
+                            });
+                          },
+                    child: const Text('休憩終了'),
                   ),
                 ),
               ],
