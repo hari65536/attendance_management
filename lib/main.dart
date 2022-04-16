@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -30,6 +32,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  // 現在時刻
+  // ignore: non_constant_identifier_names
+  String current_time = '';
   // 出勤時間
   // ignore: non_constant_identifier_names
   DateTime attendance_time = DateTime.now();
@@ -42,13 +47,38 @@ class _MyHomePageState extends State<MyHomePage> {
   // 休憩終了
   // ignore: non_constant_identifier_names
   DateTime resume_time = DateTime.now();
+  // ignore: prefer_typing_uninitialized_variables
+  var _timer;
+
+  // Datatimeformat
+  var formatter = DateFormat('yyyy/MM/dd HH:mm:ss');
   bool working = false;
   bool resting = false;
 
-  // ignore: non_constant_identifier_names
-  void get_current_time(now) {
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(
+      // 定期実行する間隔の設定.
+      const Duration(milliseconds: 100),
+      // 定期実行関数.
+      _onTimer,
+    );
+  }
+
+  @override
+  void dispose() {
+    // 破棄される時に停止する.
+    _timer.cancel();
+    super.dispose();
+  }
+
+  // 現在時刻表示用の時刻取得関数
+  void _onTimer(Timer timer) {
+    var now = DateTime.now();
+    var formatterTime = formatter.format(now);
     setState(() {
-      now = DateTime.now();
+      current_time = formatterTime;
     });
   }
 
@@ -62,6 +92,14 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            const Text(
+              '現在時刻',
+            ),
+            Text(
+              current_time,
+              style: Theme.of(context).textTheme.headline4,
+            ),
+            const SizedBox(height: 16),
             const Text(
               '出勤時刻',
             ),
