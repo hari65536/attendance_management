@@ -2,10 +2,14 @@
 
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -19,7 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: '打刻管理'),
     );
   }
 }
@@ -98,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             const SizedBox(height: 16),
             const Text(
-              '出勤時刻',
+              '勤務開始',
             ),
             Text(
               attendance_time,
@@ -106,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             const SizedBox(height: 8),
             const Text(
-              '退勤時刻',
+              '勤務終了',
             ),
             Text(
               leave_time,
@@ -127,7 +131,21 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: working == true
                         ? null
                         // ボタンをクリックした時の処理
-                        : () {
+                        : () async {
+                            final date =
+                                DateTime.now().toLocal().toIso8601String();
+                            // firestore
+                            await FirebaseFirestore.instance
+                                .collection('user1')
+                                .doc(DateFormat('yyyy-MM-dd')
+                                    .format(DateTime.now()))
+                                .set({
+                              'name': 'user1',
+                              'attendance': date,
+                              'rest_start': '',
+                              'rest_finish': '',
+                              'leave': '',
+                            });
                             setState(() {
                               working = true;
                               attendance_time =
@@ -151,11 +169,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     // ボタンをクリックした時の処理
                     onPressed: (working == false || resting == true)
                         ? null
-                        : () {
+                        : () async {
                             setState(() {
                               working = false;
                               leave_time = formatter.format(DateTime.now());
                             });
+                            final date =
+                                DateTime.now().toLocal().toIso8601String();
+                            await FirebaseFirestore.instance
+                                .collection('user1')
+                                .doc(DateFormat('yyyy-MM-dd')
+                                    .format(DateTime.now()))
+                                .update({'leave': date});
                           },
                     child: const Text('退勤'),
                   ),
@@ -179,11 +204,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     // ボタンをクリックした時の処理
                     onPressed: (working == false || resting == true)
                         ? null
-                        : () {
+                        : () async {
                             setState(() {
                               resting = true;
                               rest_time = formatter.format(DateTime.now());
                             });
+                            final date =
+                                DateTime.now().toLocal().toIso8601String();
+                            await FirebaseFirestore.instance
+                                .collection('user1')
+                                .doc(DateFormat('yyyy-MM-dd')
+                                    .format(DateTime.now()))
+                                .update({'rest_start': date});
                           },
                     child: const Text('休憩開始'),
                   ),
@@ -202,11 +234,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     // ボタンをクリックした時の処理
                     onPressed: resting == false
                         ? null
-                        : () {
+                        : () async {
                             setState(() {
                               resting = false;
                               resume_time = formatter.format(DateTime.now());
                             });
+                            final date =
+                                DateTime.now().toLocal().toIso8601String();
+                            await FirebaseFirestore.instance
+                                .collection('user1')
+                                .doc(DateFormat('yyyy-MM-dd')
+                                    .format(DateTime.now()))
+                                .update({'rest_finish': date});
                           },
                     child: const Text('休憩終了'),
                   ),
