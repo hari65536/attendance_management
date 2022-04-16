@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -33,20 +35,15 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   // 現在時刻
-  // ignore: non_constant_identifier_names
   String current_time = '';
   // 出勤時間
-  // ignore: non_constant_identifier_names
-  DateTime attendance_time = DateTime.now();
+  String attendance_time = '';
   // 退勤時間
-  // ignore: non_constant_identifier_names
-  DateTime leave_time = DateTime.now();
+  String leave_time = '';
   // 休憩開始時間
-  // ignore: non_constant_identifier_names
-  DateTime rest_time = DateTime.now();
+  String rest_time = '';
   // 休憩終了
-  // ignore: non_constant_identifier_names
-  DateTime resume_time = DateTime.now();
+  String resume_time = '';
   // ignore: prefer_typing_uninitialized_variables
   var _timer;
 
@@ -104,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
               '出勤時刻',
             ),
             Text(
-              DateFormat('yyyy-MM-dd(E) hh:mm').format(attendance_time),
+              attendance_time,
               style: Theme.of(context).textTheme.headline4,
             ),
             const SizedBox(height: 8),
@@ -112,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
               '退勤時刻',
             ),
             Text(
-              DateFormat('yyyy-MM-dd(E) hh:mm').format(leave_time),
+              leave_time,
               style: Theme.of(context).textTheme.headline4,
             ),
             const SizedBox(height: 8),
@@ -133,7 +130,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         : () {
                             setState(() {
                               working = true;
-                              attendance_time = DateTime.now();
+                              attendance_time =
+                                  formatter.format(DateTime.now());
                             });
                           },
                     child: const Text('出勤'),
@@ -156,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         : () {
                             setState(() {
                               working = false;
-                              leave_time = DateTime.now();
+                              leave_time = formatter.format(DateTime.now());
                             });
                           },
                     child: const Text('退勤'),
@@ -184,7 +182,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         : () {
                             setState(() {
                               resting = true;
-                              attendance_time = DateTime.now();
+                              rest_time = formatter.format(DateTime.now());
                             });
                           },
                     child: const Text('休憩開始'),
@@ -207,7 +205,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         : () {
                             setState(() {
                               resting = false;
-                              leave_time = DateTime.now();
+                              resume_time = formatter.format(DateTime.now());
                             });
                           },
                     child: const Text('休憩終了'),
