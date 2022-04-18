@@ -1,17 +1,16 @@
 // ignore_for_file: non_constant_identifier_names
 
-// import 'dart:async';
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:attendance_management/time_stamp.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-// import 'package:intl/intl.dart';
-import './time_stamp.dart';
+import 'history.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  initializeDateFormatting('ja_JP');
   runApp(const MyApp());
 }
 
@@ -20,9 +19,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Flutter Demo',
-      home: MainPage(),
+      darkTheme: ThemeData.dark(),
+      home: const MainPage(),
     );
   }
 }
@@ -34,17 +34,40 @@ class MainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('main画面のタイトルバー'),
+        title: const Text('ホーム画面'),
       ),
       body: Center(
-        child: ElevatedButton(
-          child: const Text('ボタン'),
-          //★２ 画面遷移のボタンイベント
-          onPressed: () =>
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-            return const TimeStampPage();
-          })),
-          //★２追加ここまで
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(
+              width: 128,
+              height: 64,
+              child: ElevatedButton(
+                child: const Text('履歴'),
+                //★２ 画面遷移のボタンイベント
+                onPressed: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) {
+                  return const HistoryPage();
+                })),
+                //★２追加ここまで
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: 128,
+              height: 64,
+              child: ElevatedButton(
+                child: const Text('打刻'),
+                //★２ 画面遷移のボタンイベント
+                onPressed: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) {
+                  return const TimeStampPage();
+                })),
+                //★２追加ここまで
+              ),
+            ),
+          ],
         ),
       ),
     );
