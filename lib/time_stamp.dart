@@ -1,9 +1,8 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, prefer_typing_uninitialized_variables
 
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -48,7 +47,7 @@ class _TimeStampPageState extends State<TimeStampPage> {
   String rest_time = '';
   // 休憩終了
   String resume_time = '';
-  // ignore: prefer_typing_uninitialized_variables
+  // 画面遷移時に時刻表示画面を破棄するために使う変数
   var _timer;
 
   // Datatimeformat
@@ -142,9 +141,10 @@ class _TimeStampPageState extends State<TimeStampPage> {
                                 .set({
                               'name': 'user1',
                               'attendance': date,
-                              'rest_start': '',
-                              'rest_finish': '',
+                              'rest_start': [],
+                              'rest_finish': [],
                               'leave': '',
+                              'rest_count': 0,
                             });
                             setState(() {
                               working = true;
@@ -215,7 +215,9 @@ class _TimeStampPageState extends State<TimeStampPage> {
                                 .collection('user1')
                                 .doc(DateFormat('yyyy-MM-dd')
                                     .format(DateTime.now()))
-                                .update({'rest_start': date});
+                                .update({
+                              'rest_start': FieldValue.arrayUnion([date])
+                            });
                           },
                     child: const Text('休憩開始'),
                   ),
@@ -245,7 +247,10 @@ class _TimeStampPageState extends State<TimeStampPage> {
                                 .collection('user1')
                                 .doc(DateFormat('yyyy-MM-dd')
                                     .format(DateTime.now()))
-                                .update({'rest_finish': date});
+                                .update({
+                              'rest_finish': FieldValue.arrayUnion([date]),
+                              'rest_count': FieldValue.increment(1)
+                            });
                           },
                     child: const Text('休憩終了'),
                   ),
