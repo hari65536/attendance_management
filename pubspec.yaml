@@ -42,6 +42,8 @@ dependencies:
   cloud_firestore: ^3.1.12
   # ダイアログ
   adaptive_dialog: ^1.5.0+1
+  # カレンダー
+  table_calendar: ^3.0.0
 
 dev_dependencies:
   flutter_test:
