@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       home: const MainPage(),
     );
@@ -45,12 +46,11 @@ class MainPage extends StatelessWidget {
               height: 64,
               child: ElevatedButton(
                 child: const Text('履歴'),
-                //★２ 画面遷移のボタンイベント
+                // 画面遷移のボタンイベント
                 onPressed: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (context) {
                   return const HistoryPage();
                 })),
-                //★２追加ここまで
               ),
             ),
             const SizedBox(height: 8),
@@ -59,12 +59,11 @@ class MainPage extends StatelessWidget {
               height: 64,
               child: ElevatedButton(
                 child: const Text('打刻'),
-                //★２ 画面遷移のボタンイベント
+                // 画面遷移のボタンイベント
                 onPressed: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (context) {
                   return const TimeStampPage();
                 })),
-                //★２追加ここまで
               ),
             ),
           ],
