@@ -6,27 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   await Firebase.initializeApp();
-//   runApp(const MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Flutter Demo',
-//       theme: ThemeData(
-//         primarySwatch: Colors.green,
-//       ),
-//       home: const MyHomePage(title: '打刻管理'),
-//     );
-//   }
-// }
-
 class TimeStampPage extends StatefulWidget {
   const TimeStampPage({Key? key}) : super(key: key);
 
@@ -37,6 +16,12 @@ class TimeStampPage extends StatefulWidget {
 }
 
 class _TimeStampPageState extends State<TimeStampPage> {
+  late String AttendTime;
+  late String LeaveTime;
+  late List<dynamic> RestStartTimes = [];
+  late List<dynamic> RestFinishTimes = [];
+  late FieldValue create_at;
+  int RestCount = 0;
   // 現在時刻
   String current_time = '';
   // 出勤時間
@@ -131,25 +116,13 @@ class _TimeStampPageState extends State<TimeStampPage> {
                         ? null
                         // ボタンをクリックした時の処理
                         : () async {
-                            final date =
-                                DateTime.now().toLocal().toIso8601String();
-                            // firestore
-                            await FirebaseFirestore.instance
-                                .collection('user1')
-                                .doc(DateFormat('yyyy-MM-dd')
-                                    .format(DateTime.now()))
-                                .set({
-                              'name': 'user1',
-                              'attendance': date,
-                              'rest_start': [],
-                              'rest_finish': [],
-                              'leave': '',
-                              'rest_count': 0,
-                            });
                             setState(() {
                               working = true;
                               attendance_time =
-                                  formatter.format(DateTime.now());
+                                  DateFormat('HH:mm').format(DateTime.now());
+                              AttendTime =
+                                  DateTime.now().toLocal().toIso8601String();
+                              create_at = FieldValue.serverTimestamp();
                             });
                           },
                     child: const Text('出勤'),
@@ -172,15 +145,24 @@ class _TimeStampPageState extends State<TimeStampPage> {
                         : () async {
                             setState(() {
                               working = false;
-                              leave_time = formatter.format(DateTime.now());
+                              leave_time =
+                                  DateFormat('HH:mm').format(DateTime.now());
                             });
-                            final date =
+                            final LeaveTime =
                                 DateTime.now().toLocal().toIso8601String();
                             await FirebaseFirestore.instance
                                 .collection('user1')
                                 .doc(DateFormat('yyyy-MM-dd')
                                     .format(DateTime.now()))
-                                .update({'leave': date});
+                                .set({
+                              'name': 'user1',
+                              'attendance': AttendTime,
+                              'rest_start': RestStartTimes,
+                              'rest_finish': RestFinishTimes,
+                              'leave': LeaveTime,
+                              'rest_count': RestCount,
+                              'createdAt': create_at
+                            });
                           },
                     child: const Text('退勤'),
                   ),
@@ -208,15 +190,8 @@ class _TimeStampPageState extends State<TimeStampPage> {
                             setState(() {
                               resting = true;
                               rest_time = formatter.format(DateTime.now());
-                            });
-                            final date =
-                                DateTime.now().toLocal().toIso8601String();
-                            await FirebaseFirestore.instance
-                                .collection('user1')
-                                .doc(DateFormat('yyyy-MM-dd')
-                                    .format(DateTime.now()))
-                                .update({
-                              'rest_start': FieldValue.arrayUnion([date])
+                              RestStartTimes.add(
+                                  DateTime.now().toLocal().toIso8601String());
                             });
                           },
                     child: const Text('休憩開始'),
@@ -240,16 +215,9 @@ class _TimeStampPageState extends State<TimeStampPage> {
                             setState(() {
                               resting = false;
                               resume_time = formatter.format(DateTime.now());
-                            });
-                            final date =
-                                DateTime.now().toLocal().toIso8601String();
-                            await FirebaseFirestore.instance
-                                .collection('user1')
-                                .doc(DateFormat('yyyy-MM-dd')
-                                    .format(DateTime.now()))
-                                .update({
-                              'rest_finish': FieldValue.arrayUnion([date]),
-                              'rest_count': FieldValue.increment(1)
+                              RestFinishTimes.add(
+                                  DateTime.now().toLocal().toIso8601String());
+                              RestCount += 1;
                             });
                           },
                     child: const Text('休憩終了'),
