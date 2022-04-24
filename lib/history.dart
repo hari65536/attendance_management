@@ -1,5 +1,7 @@
 // ignore_for_file: must_be_immutable, non_constant_identifier_names, prefer_typing_uninitialized_variables, unused_local_variable
 
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -16,6 +18,7 @@ class HistoryPage extends StatefulWidget {
 class _HistoryPageState extends State<HistoryPage> {
   var formatter = DateFormat('yyyy/MM/dd (E)', 'ja');
   DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
   DateTime view_month_start =
       DateTime(DateTime.now().year, DateTime.now().month, 1, 0, 0);
   DateTime view_month_end =
@@ -36,15 +39,15 @@ class _HistoryPageState extends State<HistoryPage> {
             firstDay: DateTime.utc(2020, 1, 1),
             lastDay: DateTime.utc(2030, 12, 31),
             focusedDay: _focusedDay,
-            // selectedDayPredicate: (day) {
-            //   return isSameDay(_selectedDay, day);
-            // },
-            // onDaySelected: (selectedDay, focusedDay) {
-            //   setState(() {
-            //     _selectedDay = selectedDay;
-            //     _focusedDay = focusedDay; // update `_focusedDay` here as well
-            //   });
-            // },
+            selectedDayPredicate: (day) {
+              return isSameDay(_selectedDay, day);
+            },
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDay = selectedDay;
+                _focusedDay = focusedDay; // update `_focusedDay` here as well
+              });
+            },
             onPageChanged: (focusedDay) {
               setState(() {
                 _focusedDay = focusedDay;
@@ -65,7 +68,8 @@ class _HistoryPageState extends State<HistoryPage> {
           ),
           Container(
             padding: const EdgeInsets.all(8),
-            child: Text('ログイン情報:$view_month_end'),
+            child: Text(
+                '${view_month_start.year}年${view_month_start.month}月の勤務履歴一覧'),
           ),
           Expanded(
             // FutureBuilder
@@ -87,6 +91,7 @@ class _HistoryPageState extends State<HistoryPage> {
                   // 取得した投稿メッセージ一覧を元にリスト表示
                   return ListView(
                     children: documents.map((document) {
+                      // 出勤時間
                       DateTime AttendTime =
                           DateTime.parse(document['attendance']);
                       DateTime LeaveTime = DateTime.parse(document['leave']);
@@ -96,7 +101,7 @@ class _HistoryPageState extends State<HistoryPage> {
 
                       var SumRestTime = 0;
                       final diff_time = LeaveTime.difference(AttendTime);
-
+                      // 総休憩時間の計算
                       if (RestCount > 0) {
                         for (var i = 0; i < RestCount; i++) {
                           SumRestTime = DateTime.parse(RestFinishTimes[i])
@@ -129,7 +134,10 @@ class _HistoryPageState extends State<HistoryPage> {
                                         Text(
                                             '合計勤務時間 ${diff_time.inMinutes - SumRestTime}分'),
                                         Text('休憩回数 $RestCount'),
-                                        Text('総休憩時間 $SumRestTime分')
+                                        Text('総休憩時間 $SumRestTime分'),
+                                        // 勤務時間が8時間を超えた場合には残業としてカウント
+                                        Text(
+                                            '残業時間 ${max(0, diff_time.inMinutes - SumRestTime - 480)}分')
                                       ],
                                     )
                                   ])),
