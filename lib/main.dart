@@ -68,11 +68,6 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  // メッセージ表示用
-  String infoText = '';
-  // 入力したメールアドレス・パスワード
-  String email = '';
-  String password = '';
   String user_name = '';
 
   @override
@@ -90,7 +85,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              // メールアドレス入力
+              // ユーザー名
               TextFormField(
                 decoration: const InputDecoration(labelText: 'ユーザー名'),
                 onChanged: (String value) {
@@ -101,8 +96,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
               Container(
                 padding: const EdgeInsets.all(8),
-                // メッセージ表示
-                child: Text(infoText),
               ),
               SizedBox(
                 width: double.infinity,
@@ -124,7 +117,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
-                // ログイン登録ボタン
+                // 管理者ログインボタン
                 child: ElevatedButton(
                   child: const Text('管理者ログイン'),
                   onPressed: user_name == ''
@@ -176,6 +169,7 @@ class MainPage extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            // 勤務履歴ボタン
             SizedBox(
               width: 128,
               height: 64,
@@ -193,7 +187,9 @@ class MainPage extends ConsumerWidget {
                 })),
               ),
             ),
+            // 調整のための空白
             const SizedBox(height: 8),
+            // 打刻機能への遷移ボタン
             SizedBox(
               width: 128,
               height: 64,

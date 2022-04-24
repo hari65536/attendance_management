@@ -15,7 +15,7 @@ class AmendedReturnPage extends ConsumerStatefulWidget {
   ConsumerState<AmendedReturnPage> createState() => _AmendedReturnPageState();
 }
 
-// チャット画面用Widget
+// 申請一覧
 class _AmendedReturnPageState extends ConsumerState<AmendedReturnPage> {
   var formatter = DateFormat('HH:mm');
   DateTime _focusedDay = DateTime.now();
@@ -207,7 +207,7 @@ class _AmendedReturnPageState extends ConsumerState<AmendedReturnPage> {
                 style: ElevatedButton.styleFrom(
                   primary: Colors.red, //ボタンの背景色
                 ),
-                // ボタンをクリックした時の処理
+                // 全ての項目に入力している場合のみ申請可能になる
                 onPressed: (attendance_time == DateTime.utc(3000, 1, 1) ||
                         leave_time == DateTime.utc(3000, 1, 1) ||
                         rest_start == DateTime.utc(3000, 1, 1) ||
@@ -273,6 +273,8 @@ class _AmendedReturnPageState extends ConsumerState<AmendedReturnPage> {
     );
   }
 
+  // 任意の時刻指定用の関数
+  // 本当は引数を変えて使いまわせばいいはずだけど,その書き方がわからなかったので,出勤/退勤/休憩開始/休憩終了ごとに4つの関数がある.
   _selectTime_attend(BuildContext context) async {
     final TimeOfDay? timeOfDay = await showTimePicker(
         context: context,
@@ -281,9 +283,8 @@ class _AmendedReturnPageState extends ConsumerState<AmendedReturnPage> {
         builder: (context, childWidget) {
           return MediaQuery(
               data: MediaQuery.of(context).copyWith(
-                  // Using 24-Hour format
+                  // 24時間表記の設定をtrueに
                   alwaysUse24HourFormat: true),
-              // If you want 12-Hour format, just change alwaysUse24HourFormat to false or remove all the builder argument
               child: childWidget!);
         },
         cancelText: 'キャンセル',
@@ -306,10 +307,8 @@ class _AmendedReturnPageState extends ConsumerState<AmendedReturnPage> {
         initialEntryMode: TimePickerEntryMode.input,
         builder: (context, childWidget) {
           return MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                  // Using 24-Hour format
-                  alwaysUse24HourFormat: true),
-              // If you want 12-Hour format, just change alwaysUse24HourFormat to false or remove all the builder argument
+              data:
+                  MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
               child: childWidget!);
         },
         cancelText: 'キャンセル',
@@ -332,10 +331,8 @@ class _AmendedReturnPageState extends ConsumerState<AmendedReturnPage> {
         initialEntryMode: TimePickerEntryMode.input,
         builder: (context, childWidget) {
           return MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                  // Using 24-Hour format
-                  alwaysUse24HourFormat: true),
-              // If you want 12-Hour format, just change alwaysUse24HourFormat to false or remove all the builder argument
+              data:
+                  MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
               child: childWidget!);
         },
         cancelText: 'キャンセル',
@@ -358,10 +355,8 @@ class _AmendedReturnPageState extends ConsumerState<AmendedReturnPage> {
         initialEntryMode: TimePickerEntryMode.input,
         builder: (context, childWidget) {
           return MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                  // Using 24-Hour format
-                  alwaysUse24HourFormat: true),
-              // If you want 12-Hour format, just change alwaysUse24HourFormat to false or remove all the builder argument
+              data:
+                  MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
               child: childWidget!);
         },
         cancelText: 'キャンセル',

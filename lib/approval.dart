@@ -26,10 +26,9 @@ class _ApprovalPageState extends State<ApprovalPage> {
       body: Column(
         children: [
           Expanded(
-            // StreamBuilder
-            // 非同期処理の結果を元にWidgetを作れる
+            // StreamBuilderにするとリアルタイムでのデータの更新が行われる
             child: StreamBuilder<QuerySnapshot>(
-              // 投稿メッセージ一覧を取得（非同期処理）
+              // データ一覧を取得
               // 投稿日時でソート
               stream: FirebaseFirestore.instance
                   .collection('amended_return')
@@ -45,13 +44,18 @@ class _ApprovalPageState extends State<ApprovalPage> {
                       // 出勤時間
                       DateTime AttendTime =
                           DateTime.parse(document['attendance']);
+                      // 退勤時間
                       DateTime LeaveTime = DateTime.parse(document['leave']);
+                      // 休憩開始/休憩終了時間
                       List<dynamic> RestStartTimes = document['rest_start'];
                       List<dynamic> RestFinishTimes = document['rest_finish'];
+                      // 打刻修正の場合は休憩回数は1として扱う
                       int RestCount = document['rest_count'];
-                      String user_name = document['name'];
                       Timestamp create_at = document['createdAt'];
+                      // 修正申請理由
                       String Reason = document['reason'];
+                      // 修正申請者の名前
+                      String user_name = document['name'];
 
                       var SumRestTime = 0;
                       // 出勤時間と退勤時間の差を計算
@@ -74,6 +78,7 @@ class _ApprovalPageState extends State<ApprovalPage> {
                             showDialog(
                               context: context,
                               builder: (_) {
+                                // AlertDialogを用いて詳細情報の表示
                                 return AlertDialog(
                                   title: const Text("申請内容の詳細"),
                                   content: SingleChildScrollView(
@@ -113,12 +118,13 @@ class _ApprovalPageState extends State<ApprovalPage> {
                                     TextButton(
                                       child: const Text("承認"),
                                       onPressed: () async {
+                                        // ダイアログの承認ボタンを押したときに,修正される.
                                         await FirebaseFirestore.instance
-                                            .collection('user1')
+                                            .collection(user_name)
                                             .doc(DateFormat('yyyy-MM-dd')
                                                 .format(AttendTime))
                                             .set({
-                                          'name': 'user1',
+                                          'name': user_name,
                                           'attendance':
                                               AttendTime.toIso8601String(),
                                           'rest_start': RestStartTimes,
@@ -127,9 +133,11 @@ class _ApprovalPageState extends State<ApprovalPage> {
                                           'rest_count': RestCount,
                                           'createdAt': create_at
                                         });
-                                        FirebaseFirestore.instance
-                                            .collection('user1')
-                                            .doc(document.id)
+                                        // 承認した後申請データは削除される
+                                        await FirebaseFirestore.instance
+                                            .collection('amended_return')
+                                            .doc(DateFormat('yyyy-MM-dd')
+                                                .format(AttendTime))
                                             .delete();
                                         Navigator.pop(context);
                                       },

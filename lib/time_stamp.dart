@@ -61,6 +61,7 @@ class _TimeStampPageState extends ConsumerState<TimeStampPage> {
 
   @override
   Widget build(BuildContext context) {
+    // 打刻昨日はアプリを終了,もしくはログアウトしない限りは記録できるように状態を保持する.
     final Attend = ref.watch(AttendTime.notifier);
     final working = ref.watch(Working.notifier);
     final resting = ref.watch(Resting.notifier);

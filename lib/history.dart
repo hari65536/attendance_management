@@ -17,7 +17,7 @@ class HistoryPage extends ConsumerStatefulWidget {
   ConsumerState<HistoryPage> createState() => _HistoryPageState();
 }
 
-// チャット画面用Widget
+// 勤務履歴
 class _HistoryPageState extends ConsumerState<HistoryPage> {
   var formatter = DateFormat('yyyy/MM/dd (E)', 'ja');
   DateTime _focusedDay = DateTime.now();
@@ -29,6 +29,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    // 保持しているユーザー名からそのユーザーの勤務記録のみを抽出する
     final user = ref.watch(UserName.notifier);
 
     return Scaffold(
@@ -41,18 +42,11 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
           TableCalendar(
             // 設定
             locale: 'ja_JP',
+            // カレンダーの描画範囲.とりあえず2020-2029までの10年間表示させておく.
             firstDay: DateTime.utc(2020, 1, 1),
             lastDay: DateTime.utc(2030, 12, 31),
             focusedDay: _focusedDay,
-            selectedDayPredicate: (day) {
-              return isSameDay(_selectedDay, day);
-            },
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                _selectedDay = selectedDay;
-                _focusedDay = focusedDay; // update `_focusedDay` here as well
-              });
-            },
+            // カレンダーの月の表示が変更されたとき,その月の勤務記録を取得する
             onPageChanged: (focusedDay) {
               setState(() {
                 _focusedDay = focusedDay;
@@ -76,10 +70,9 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
             ),
           ),
           Expanded(
-            // StreamBuilder
-            // 非同期処理の結果を元にWidgetを作れる
+            // StreamBuilderにするとリアルタイムでのデータの更新が行われる
             child: StreamBuilder<QuerySnapshot>(
-              // 投稿メッセージ一覧を取得（非同期処理）
+              // データ一覧を取得（非同期処理）
               // 投稿日時でソート
               stream: FirebaseFirestore.instance
                   .collection(user.state)
@@ -128,25 +121,26 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                                 return AlertDialog(
                                   title: const Text("勤務詳細"),
                                   content: SingleChildScrollView(
-                                      child: ListBody(children: <Widget>[
-                                    Column(
+                                    child: ListBody(
                                       children: <Widget>[
-                                        Text(
-                                            '出勤時刻 ${DateFormat('HH:mm').format(AttendTime)}'),
-                                        Text(
-                                            '退勤時刻 ${DateFormat('HH:mm').format(LeaveTime)}'),
-                                        Text(
-                                            '合計勤務時間 ${diff_time.inMinutes - SumRestTime}分'),
-                                        Text('休憩回数 $RestCount'),
-                                        Text('総休憩時間 $SumRestTime分'),
-                                        // 勤務時間が8時間を超えた場合には残業としてカウント
-                                        Text(
-                                            '残業時間 ${max(0, diff_time.inMinutes - SumRestTime - 480)}分')
+                                        Column(
+                                          children: <Widget>[
+                                            Text(
+                                                '出勤時刻 ${DateFormat('HH:mm').format(AttendTime)}'),
+                                            Text(
+                                                '退勤時刻 ${DateFormat('HH:mm').format(LeaveTime)}'),
+                                            Text(
+                                                '合計勤務時間 ${diff_time.inMinutes - SumRestTime}分'),
+                                            Text('休憩回数 $RestCount'),
+                                            Text('総休憩時間 $SumRestTime分'),
+                                            // 勤務時間が8時間を超えた場合には残業としてカウント
+                                            Text(
+                                                '残業時間 ${max(0, diff_time.inMinutes - SumRestTime - 480)}分')
+                                          ],
+                                        )
                                       ],
-                                    )
-                                  ])),
-                                  // content: const Text(
-                                  //     "メッセージメッセージメッセージメッセージメッセージメッセージ"),
+                                    ),
+                                  ),
                                   actions: <Widget>[
                                     // ボタン領域
                                     TextButton(
