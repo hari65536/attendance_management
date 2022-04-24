@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'amended_return.dart';
+import 'approval.dart';
 import 'history.dart';
 
 // 異なるページで共通して使う変数を定義
@@ -97,6 +98,19 @@ class MainPage extends StatelessWidget {
                 onPressed: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (context) {
                   return const AmendedReturnPage();
+                })),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: 128,
+              height: 64,
+              child: ElevatedButton(
+                child: const Text('打刻修正の承認'),
+                // 画面遷移のボタンイベント
+                onPressed: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) {
+                  return const ApprovalPage();
                 })),
               ),
             ),
