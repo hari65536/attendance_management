@@ -12,6 +12,7 @@ Flutter で作られた打刻管理/勤務記録アプリのデモ版です.
 - 打刻時刻の修正申告(管理者)
 
 ## デモ
+URL : myapp-5dd86.firebaseapp.com
 
 ## Getting Started
 
