@@ -1,5 +1,6 @@
 // ignore_for_file: must_be_immutable, non_constant_identifier_names, prefer_typing_uninitialized_variables, unused_local_variable
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -31,194 +32,237 @@ class _AmendedReturnPageState extends State<AmendedReturnPage> {
       appBar: AppBar(
         title: const Text('チャット'),
       ),
-      body: Column(
-        children: [
-          // カレンダーの表示
-          TableCalendar(
-            // 以下必ず設定が必要
-            locale: 'ja_JP',
-            firstDay: DateTime.utc(2020, 1, 1),
-            lastDay: DateTime.utc(2030, 12, 31),
-            focusedDay: _focusedDay,
-            selectedDayPredicate: (day) {
-              return isSameDay(_selectedDay, day);
-            },
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                _selectedDay = selectedDay;
-                _focusedDay = focusedDay; // update `_focusedDay` here as well
-              });
-            },
-            // onPageChanged: (focusedDay) {
-            //   setState(() {
-            //     _focusedDay = focusedDay;
-            //   });
-            // },
-            headerStyle: const HeaderStyle(
-              formatButtonVisible: false,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: const Text(
-              '修正したい日をカレンダーから選択してください.',
-              style: TextStyle(
-                // fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            DateFormat('yyyy/MM/dd').format(_focusedDay),
-            style: Theme.of(context).textTheme.headline5,
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                children: [
-                  // 勤務開始時刻
-                  const Text(
-                    '勤務開始',
-                    style: TextStyle(
-                      // fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    formatter.format(attendance_time!),
-                    style: Theme.of(context).textTheme.headline4,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      _selectTime_attend(context);
-                    },
-                    child: const Text("時刻入力"),
-                  ),
-                  const SizedBox(height: 16),
-                  // 休憩開始時刻
-                  const Text(
-                    '休憩開始時間',
-                    style: TextStyle(
-                      // fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    formatter.format(rest_start!),
-                    style: Theme.of(context).textTheme.headline4,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      _selectTime_rest_start(context);
-                    },
-                    child: const Text("時刻入力"),
-                  ),
-                ],
-              ),
-              const SizedBox(width: 64),
-              Column(
-                children: [
-                  const Text(
-                    '勤務終了',
-                    style: TextStyle(
-                      // fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    formatter.format(leave_time!),
-                    style: Theme.of(context).textTheme.headline4,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      _selectTime_leave(context);
-                    },
-                    child: const Text("時刻入力"),
-                  ),
-                  const SizedBox(height: 16),
-                  //　休憩時間記録用
-                  const Text(
-                    '休憩終了時間',
-                    style: TextStyle(
-                      // fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    formatter.format(rest_finish!),
-                    style: Theme.of(context).textTheme.headline4,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      _selectTime_rest_finish(context);
-                    },
-                    child: const Text("時刻入力"),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 32),
-          SizedBox(
-            width: 400,
-            child: TextField(
-              enabled: true,
-              onChanged: (text) {
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // カレンダーの表示
+            TableCalendar(
+              // 以下必ず設定が必要
+              locale: 'ja_JP',
+              firstDay: DateTime.utc(2020, 1, 1),
+              lastDay: DateTime.now(),
+              focusedDay: _focusedDay,
+              selectedDayPredicate: (day) {
+                return isSameDay(_selectedDay, day);
+              },
+              onDaySelected: (selectedDay, focusedDay) {
                 setState(() {
-                  inputText = text;
+                  _selectedDay = selectedDay;
+                  _focusedDay = focusedDay; // update `_focusedDay` here as well
                 });
               },
-              decoration: const InputDecoration(
-                labelText: '申請理由',
-                hintText: '(例) 打刻忘れのため',
-                labelStyle: TextStyle(color: Colors.blue),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  borderSide: BorderSide(width: 1, color: Colors.blue),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  borderSide: BorderSide(width: 1, color: Colors.blue),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
+              // onPageChanged: (focusedDay) {
+              //   setState(() {
+              //     _focusedDay = focusedDay;
+              //   });
+              // },
+              headerStyle: const HeaderStyle(
+                formatButtonVisible: false,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(8),
+              child: const Text(
+                '修正したい日をカレンダーから選択してください.',
+                style: TextStyle(
+                  // fontWeight: FontWeight.bold,
+                  fontSize: 20,
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 64,
-            width: 128,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                primary: Colors.grey, //ボタンの背景色
-              ),
-              // ボタンをクリックした時の処理
-              onPressed: (attendance_time == DateTime.utc(3000, 1, 1) ||
-                      leave_time == DateTime.utc(3000, 1, 1) ||
-                      rest_start == DateTime.utc(3000, 1, 1) ||
-                      rest_finish == DateTime.utc(3000, 1, 1) ||
-                      inputText == '')
-                  ? null
-                  : () async {
-                      setState(() {});
-                    },
-              child: const Text('申請'),
+            const SizedBox(height: 8),
+            Text(
+              DateFormat('yyyy/MM/dd').format(_focusedDay),
+              style: Theme.of(context).textTheme.headline5,
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Column(
+                  children: [
+                    // 勤務開始時刻
+                    const Text(
+                      '勤務開始',
+                      style: TextStyle(
+                        // fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      formatter.format(attendance_time!),
+                      style: Theme.of(context).textTheme.headline4,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        _selectTime_attend(context);
+                      },
+                      child: const Text("時刻入力"),
+                    ),
+                    const SizedBox(height: 16),
+                    // 休憩開始時刻
+                    const Text(
+                      '休憩開始時間',
+                      style: TextStyle(
+                        // fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      formatter.format(rest_start!),
+                      style: Theme.of(context).textTheme.headline4,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        _selectTime_rest_start(context);
+                      },
+                      child: const Text("時刻入力"),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 64),
+                Column(
+                  children: [
+                    const Text(
+                      '勤務終了',
+                      style: TextStyle(
+                        // fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      formatter.format(leave_time!),
+                      style: Theme.of(context).textTheme.headline4,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        _selectTime_leave(context);
+                      },
+                      child: const Text("時刻入力"),
+                    ),
+                    const SizedBox(height: 16),
+                    //　休憩時間記録用
+                    const Text(
+                      '休憩終了時間',
+                      style: TextStyle(
+                        // fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      formatter.format(rest_finish!),
+                      style: Theme.of(context).textTheme.headline4,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        _selectTime_rest_finish(context);
+                      },
+                      child: const Text("時刻入力"),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: 400,
+              child: TextField(
+                enabled: true,
+                onChanged: (text) {
+                  setState(() {
+                    inputText = text;
+                  });
+                },
+                decoration: const InputDecoration(
+                  labelText: '申請理由',
+                  hintText: '(例) 打刻忘れのため',
+                  labelStyle: TextStyle(color: Colors.blue),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    borderSide: BorderSide(width: 1, color: Colors.blue),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    borderSide: BorderSide(width: 1, color: Colors.blue),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 64,
+              width: 128,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.red, //ボタンの背景色
+                ),
+                // ボタンをクリックした時の処理
+                onPressed: (attendance_time == DateTime.utc(3000, 1, 1) ||
+                        leave_time == DateTime.utc(3000, 1, 1) ||
+                        rest_start == DateTime.utc(3000, 1, 1) ||
+                        rest_finish == DateTime.utc(3000, 1, 1) ||
+                        inputText == '')
+                    ? null
+                    : () async {
+                        showDialog(
+                            context: context,
+                            builder: (_) {
+                              return AlertDialog(
+                                title: const Text("確認"),
+                                content: SingleChildScrollView(
+                                  child: ListBody(
+                                    children: <Widget>[
+                                      Column(
+                                        children: const <Widget>[
+                                          Text('申請を送信してよろしいですか?'),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                actions: <Widget>[
+                                  // ボタン領域
+                                  TextButton(
+                                    child: const Text("OK"),
+                                    onPressed: () async {
+                                      await FirebaseFirestore.instance
+                                          .collection('amended_return')
+                                          .doc(DateFormat('yyyy-MM-dd')
+                                              .format(DateTime.now()))
+                                          .set({
+                                        'name': 'user1',
+                                        'attendance': attendance_time,
+                                        'rest_start': rest_start,
+                                        'rest_finish': rest_finish,
+                                        'leave': leave_time,
+                                        'rest_count': 1,
+                                        'createdAt': Timestamp.fromDate(
+                                            attendance_time!),
+                                        'reason': inputText,
+                                      });
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ],
+                              );
+                            });
+                      },
+                child: const Text('申請'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
