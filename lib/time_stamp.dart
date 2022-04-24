@@ -1,44 +1,43 @@
-// ignore_for_file: non_constant_identifier_names, prefer_typing_uninitialized_variables
+// ignore_for_file: non_constant_identifier_names, prefer_typing_uninitialized_variables, unrelated_type_equality_checks
 
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-class TimeStampPage extends StatefulWidget {
+import 'main.dart';
+
+class TimeStampPage extends ConsumerStatefulWidget {
   const TimeStampPage({Key? key}) : super(key: key);
 
   // final String title;
 
   @override
-  State<TimeStampPage> createState() => _TimeStampPageState();
+  _TimeStampPageState createState() => _TimeStampPageState();
 }
 
-class _TimeStampPageState extends State<TimeStampPage> {
-  late String AttendTime;
-  late String LeaveTime;
-  late List<dynamic> RestStartTimes = [];
-  late List<dynamic> RestFinishTimes = [];
-  late FieldValue create_at;
-  int RestCount = 0;
+class _TimeStampPageState extends ConsumerState<TimeStampPage> {
   // 現在時刻
   String current_time = '';
   // 出勤時間
   String attendance_time = '';
   // 退勤時間
   String leave_time = '';
+  // ステータス
+  String state = '勤務外';
   // 休憩開始時間
-  String rest_time = '';
+  // String rest_time = '';
   // 休憩終了
-  String resume_time = '';
+  // String resume_time = '';
   // 画面遷移時に時刻表示画面を破棄するために使う変数
   var _timer;
 
   // Datatimeformat
   var formatter = DateFormat('yyyy/MM/dd HH:mm:ss');
-  bool working = false;
-  bool resting = false;
+  // bool working = false;
+  // bool resting = false;
 
   @override
   void initState() {
@@ -69,6 +68,16 @@ class _TimeStampPageState extends State<TimeStampPage> {
 
   @override
   Widget build(BuildContext context) {
+    final Attend = ref.watch(AttendTime.notifier);
+    final working = ref.watch(Working.notifier);
+    final resting = ref.watch(Resting.notifier);
+    final Leave = ref.watch(LeaveTime.notifier);
+    final restStartTimes = ref.watch(RestStartTimes.notifier);
+    final restFinishTimes = ref.watch(RestFinishTimes.notifier);
+    final restCount = ref.watch(RestCount.notifier);
+    final create_at = ref.watch(Create_at.notifier);
+    final status = ref.watch(Status.notifier);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('打刻画面'),
@@ -77,6 +86,14 @@ class _TimeStampPageState extends State<TimeStampPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            const Text(
+              '現在のステータス',
+            ),
+            Text(
+              status.state,
+              style: Theme.of(context).textTheme.headline4,
+            ),
+            const SizedBox(height: 32),
             const Text(
               '現在時刻',
             ),
@@ -112,17 +129,17 @@ class _TimeStampPageState extends State<TimeStampPage> {
                   // 出勤ボタン
                   child: ElevatedButton(
                     // working == false　のときのみボタン有効化
-                    onPressed: working == true
+                    onPressed: working.state == true
                         ? null
                         // ボタンをクリックした時の処理
                         : () async {
+                            Attend.state = DateTime.now().toIso8601String();
+                            working.state = true;
+                            create_at.state = FieldValue.serverTimestamp();
+                            status.state = '勤務中';
                             setState(() {
-                              working = true;
                               attendance_time =
                                   DateFormat('HH:mm').format(DateTime.now());
-                              AttendTime =
-                                  DateTime.now().toLocal().toIso8601String();
-                              create_at = FieldValue.serverTimestamp();
                             });
                           },
                     child: const Text('出勤'),
@@ -140,28 +157,28 @@ class _TimeStampPageState extends State<TimeStampPage> {
                       primary: Colors.red, //ボタンの背景色
                     ),
                     // ボタンをクリックした時の処理
-                    onPressed: (working == false || resting == true)
+                    onPressed: (working.state == false || resting.state == true)
                         ? null
                         : () async {
+                            working.state = false;
+                            Leave.state = DateTime.now().toIso8601String();
+                            status.state = '勤務終了';
                             setState(() {
-                              working = false;
                               leave_time =
                                   DateFormat('HH:mm').format(DateTime.now());
                             });
-                            final LeaveTime =
-                                DateTime.now().toLocal().toIso8601String();
                             await FirebaseFirestore.instance
                                 .collection('user1')
                                 .doc(DateFormat('yyyy-MM-dd')
                                     .format(DateTime.now()))
                                 .set({
                               'name': 'user1',
-                              'attendance': AttendTime,
-                              'rest_start': RestStartTimes,
-                              'rest_finish': RestFinishTimes,
-                              'leave': LeaveTime,
-                              'rest_count': RestCount,
-                              'createdAt': create_at
+                              'attendance': Attend.state,
+                              'rest_start': restStartTimes.state,
+                              'rest_finish': restFinishTimes.state,
+                              'leave': Leave.state,
+                              'rest_count': restCount.state,
+                              'createdAt': create_at.state
                             });
                           },
                     child: const Text('退勤'),
@@ -184,15 +201,13 @@ class _TimeStampPageState extends State<TimeStampPage> {
                       primary: Colors.grey, //ボタンの背景色
                     ),
                     // ボタンをクリックした時の処理
-                    onPressed: (working == false || resting == true)
+                    onPressed: (working.state == false || resting.state == true)
                         ? null
                         : () async {
-                            setState(() {
-                              resting = true;
-                              rest_time = formatter.format(DateTime.now());
-                              RestStartTimes.add(
-                                  DateTime.now().toLocal().toIso8601String());
-                            });
+                            resting.state = true;
+                            restStartTimes.state
+                                .add(DateTime.now().toIso8601String());
+                            status.state = '休憩中';
                           },
                     child: const Text('休憩開始'),
                   ),
@@ -209,16 +224,14 @@ class _TimeStampPageState extends State<TimeStampPage> {
                       primary: Colors.grey, //ボタンの背景色
                     ),
                     // ボタンをクリックした時の処理
-                    onPressed: resting == false
+                    onPressed: resting.state == false
                         ? null
                         : () async {
-                            setState(() {
-                              resting = false;
-                              resume_time = formatter.format(DateTime.now());
-                              RestFinishTimes.add(
-                                  DateTime.now().toLocal().toIso8601String());
-                              RestCount += 1;
-                            });
+                            resting.state = false;
+                            restFinishTimes.state
+                                .add(DateTime.now().toIso8601String());
+                            restCount.state = restCount.state + 1;
+                            status.state = '勤務中';
                           },
                     child: const Text('休憩終了'),
                   ),
