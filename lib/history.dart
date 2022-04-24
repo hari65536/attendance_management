@@ -1,21 +1,24 @@
-// ignore_for_file: must_be_immutable, non_constant_identifier_names, prefer_typing_uninitialized_variables, unused_local_variable
+// ignore_for_file: must_be_immutable, non_constant_identifier_names, prefer_typing_uninitialized_variables, unused_local_variable, unnecessary_string_interpolations
 
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class HistoryPage extends StatefulWidget {
+import 'main.dart';
+
+class HistoryPage extends ConsumerStatefulWidget {
   const HistoryPage({Key? key}) : super(key: key);
 
   @override
-  State<HistoryPage> createState() => _HistoryPageState();
+  ConsumerState<HistoryPage> createState() => _HistoryPageState();
 }
 
 // チャット画面用Widget
-class _HistoryPageState extends State<HistoryPage> {
+class _HistoryPageState extends ConsumerState<HistoryPage> {
   var formatter = DateFormat('yyyy/MM/dd (E)', 'ja');
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -26,6 +29,8 @@ class _HistoryPageState extends State<HistoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(UserName.notifier);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('勤務履歴'),
@@ -34,7 +39,7 @@ class _HistoryPageState extends State<HistoryPage> {
         children: [
           // カレンダーの表示
           TableCalendar(
-            // 以下必ず設定が必要
+            // 設定
             locale: 'ja_JP',
             firstDay: DateTime.utc(2020, 1, 1),
             lastDay: DateTime.utc(2030, 12, 31),
@@ -60,35 +65,27 @@ class _HistoryPageState extends State<HistoryPage> {
             headerStyle: const HeaderStyle(
               formatButtonVisible: false,
             ),
-            // onPageChanged: (d) {
-            //   setState(() {
-            //     view_month = d.month;
-            //   });
-            // },
           ),
           Container(
             padding: const EdgeInsets.all(8),
             child: Text(
               '${view_month_start.year}年${view_month_start.month}月の勤務履歴一覧',
               style: const TextStyle(
-                // fontWeight: FontWeight.bold,
-                fontSize: 16,
+                fontSize: 20,
               ),
             ),
           ),
           Expanded(
-            // FutureBuilder
+            // StreamBuilder
             // 非同期処理の結果を元にWidgetを作れる
             child: StreamBuilder<QuerySnapshot>(
               // 投稿メッセージ一覧を取得（非同期処理）
               // 投稿日時でソート
               stream: FirebaseFirestore.instance
-                  .collection('user1')
+                  .collection(user.state)
                   .orderBy('createdAt')
-                  .startAt([view_month_start]).endAt([view_month_end])
-                  // .where('createdAt', isGreaterThanOrEqualTo: view_month_start)
-                  // .where('createdAt', isLessThan: view_month_start)
-                  .snapshots(),
+                  .startAt([view_month_start]).endAt(
+                      [view_month_end]).snapshots(),
               builder: (context, snapshot) {
                 // データが取得できた場合
                 if (snapshot.hasData) {
@@ -121,6 +118,8 @@ class _HistoryPageState extends State<HistoryPage> {
                         child: ListTile(
                           title: Text(
                               formatter.format(DateTime.parse(document.id))),
+                          subtitle: Text(
+                              '${DateFormat('HH:mm').format(AttendTime)} - ${DateFormat('HH:mm').format(LeaveTime)}'),
                           // タイルをクリックすると詳細を表示
                           onTap: () {
                             showDialog(

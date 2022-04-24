@@ -27,17 +27,10 @@ class _TimeStampPageState extends ConsumerState<TimeStampPage> {
   String leave_time = '';
   // ステータス
   String state = '勤務外';
-  // 休憩開始時間
-  // String rest_time = '';
-  // 休憩終了
-  // String resume_time = '';
-  // 画面遷移時に時刻表示画面を破棄するために使う変数
   var _timer;
 
   // Datatimeformat
   var formatter = DateFormat('yyyy/MM/dd HH:mm:ss');
-  // bool working = false;
-  // bool resting = false;
 
   @override
   void initState() {
@@ -77,6 +70,7 @@ class _TimeStampPageState extends ConsumerState<TimeStampPage> {
     final restCount = ref.watch(RestCount.notifier);
     final create_at = ref.watch(Create_at.notifier);
     final status = ref.watch(Status.notifier);
+    final user = ref.watch(UserName.notifier);
 
     return Scaffold(
       appBar: AppBar(
@@ -88,6 +82,9 @@ class _TimeStampPageState extends ConsumerState<TimeStampPage> {
           children: <Widget>[
             const Text(
               '現在のステータス',
+              style: TextStyle(
+                fontSize: 20,
+              ),
             ),
             Text(
               status.state,
@@ -96,6 +93,9 @@ class _TimeStampPageState extends ConsumerState<TimeStampPage> {
             const SizedBox(height: 32),
             const Text(
               '現在時刻',
+              style: TextStyle(
+                fontSize: 20,
+              ),
             ),
             Text(
               current_time,
@@ -104,6 +104,9 @@ class _TimeStampPageState extends ConsumerState<TimeStampPage> {
             const SizedBox(height: 16),
             const Text(
               '勤務開始',
+              style: TextStyle(
+                fontSize: 20,
+              ),
             ),
             Text(
               attendance_time,
@@ -112,6 +115,9 @@ class _TimeStampPageState extends ConsumerState<TimeStampPage> {
             const SizedBox(height: 8),
             const Text(
               '勤務終了',
+              style: TextStyle(
+                fontSize: 20,
+              ),
             ),
             Text(
               leave_time,
@@ -168,11 +174,11 @@ class _TimeStampPageState extends ConsumerState<TimeStampPage> {
                                   DateFormat('HH:mm').format(DateTime.now());
                             });
                             await FirebaseFirestore.instance
-                                .collection('user1')
+                                .collection(user.state)
                                 .doc(DateFormat('yyyy-MM-dd')
                                     .format(DateTime.now()))
                                 .set({
-                              'name': 'user1',
+                              'name': user.state,
                               'attendance': Attend.state,
                               'rest_start': restStartTimes.state,
                               'rest_finish': restFinishTimes.state,

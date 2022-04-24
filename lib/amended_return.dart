@@ -2,18 +2,21 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class AmendedReturnPage extends StatefulWidget {
+import 'main.dart';
+
+class AmendedReturnPage extends ConsumerStatefulWidget {
   const AmendedReturnPage({Key? key}) : super(key: key);
 
   @override
-  State<AmendedReturnPage> createState() => _AmendedReturnPageState();
+  ConsumerState<AmendedReturnPage> createState() => _AmendedReturnPageState();
 }
 
 // チャット画面用Widget
-class _AmendedReturnPageState extends State<AmendedReturnPage> {
+class _AmendedReturnPageState extends ConsumerState<AmendedReturnPage> {
   var formatter = DateFormat('HH:mm');
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -28,9 +31,11 @@ class _AmendedReturnPageState extends State<AmendedReturnPage> {
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(UserName.notifier);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('チャット'),
+        title: const Text('勤務時間の修正申請'),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -236,7 +241,7 @@ class _AmendedReturnPageState extends State<AmendedReturnPage> {
                                           .doc(DateFormat('yyyy-MM-dd')
                                               .format(attendance_time))
                                           .set({
-                                        'name': 'user1',
+                                        'name': user.state,
                                         'attendance':
                                             attendance_time.toIso8601String(),
                                         'rest_start': [

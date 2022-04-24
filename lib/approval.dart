@@ -51,6 +51,7 @@ class _ApprovalPageState extends State<ApprovalPage> {
                       int RestCount = document['rest_count'];
                       String user_name = document['name'];
                       Timestamp create_at = document['createdAt'];
+                      String Reason = document['reason'];
 
                       var SumRestTime = 0;
                       // 出勤時間と退勤時間の差を計算
@@ -83,6 +84,7 @@ class _ApprovalPageState extends State<ApprovalPage> {
                                             Text('申請者 $user_name'),
                                             Text(
                                                 '修正する日時 ${DateFormat("yyyy/MM/dd").format(AttendTime)}'),
+                                            Text('申請理由 : $Reason'),
                                             const SizedBox(height: 8),
                                             const Text(' -- 勤務詳細 -- '),
                                             const SizedBox(height: 8),
