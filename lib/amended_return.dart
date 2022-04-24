@@ -19,10 +19,10 @@ class _AmendedReturnPageState extends State<AmendedReturnPage> {
   DateTime? _selectedDay;
   TimeOfDay selectedTime = const TimeOfDay(hour: 0, minute: 0);
 
-  DateTime? attendance_time = DateTime.utc(3000, 1, 1);
-  DateTime? leave_time = DateTime.utc(3000, 1, 1);
-  DateTime? rest_start = DateTime.utc(3000, 1, 1);
-  DateTime? rest_finish = DateTime.utc(3000, 1, 1);
+  DateTime attendance_time = DateTime.utc(3000, 1, 1);
+  DateTime leave_time = DateTime.utc(3000, 1, 1);
+  DateTime rest_start = DateTime.utc(3000, 1, 1);
+  DateTime rest_finish = DateTime.utc(3000, 1, 1);
 
   String inputText = '';
 
@@ -48,14 +48,9 @@ class _AmendedReturnPageState extends State<AmendedReturnPage> {
               onDaySelected: (selectedDay, focusedDay) {
                 setState(() {
                   _selectedDay = selectedDay;
-                  _focusedDay = focusedDay; // update `_focusedDay` here as well
+                  _focusedDay = focusedDay;
                 });
               },
-              // onPageChanged: (focusedDay) {
-              //   setState(() {
-              //     _focusedDay = focusedDay;
-              //   });
-              // },
               headerStyle: const HeaderStyle(
                 formatButtonVisible: false,
               ),
@@ -91,7 +86,7 @@ class _AmendedReturnPageState extends State<AmendedReturnPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      formatter.format(attendance_time!),
+                      formatter.format(attendance_time),
                       style: Theme.of(context).textTheme.headline4,
                     ),
                     const SizedBox(height: 16),
@@ -112,7 +107,7 @@ class _AmendedReturnPageState extends State<AmendedReturnPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      formatter.format(rest_start!),
+                      formatter.format(rest_start),
                       style: Theme.of(context).textTheme.headline4,
                     ),
                     const SizedBox(height: 16),
@@ -136,7 +131,7 @@ class _AmendedReturnPageState extends State<AmendedReturnPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      formatter.format(leave_time!),
+                      formatter.format(leave_time),
                       style: Theme.of(context).textTheme.headline4,
                     ),
                     const SizedBox(height: 16),
@@ -157,7 +152,7 @@ class _AmendedReturnPageState extends State<AmendedReturnPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      formatter.format(rest_finish!),
+                      formatter.format(rest_finish),
                       style: Theme.of(context).textTheme.headline4,
                     ),
                     const SizedBox(height: 16),
@@ -239,17 +234,23 @@ class _AmendedReturnPageState extends State<AmendedReturnPage> {
                                       await FirebaseFirestore.instance
                                           .collection('amended_return')
                                           .doc(DateFormat('yyyy-MM-dd')
-                                              .format(DateTime.now()))
+                                              .format(attendance_time))
                                           .set({
                                         'name': 'user1',
-                                        'attendance': attendance_time,
-                                        'rest_start': rest_start,
-                                        'rest_finish': rest_finish,
-                                        'leave': leave_time,
+                                        'attendance':
+                                            attendance_time.toIso8601String(),
+                                        'rest_start': [
+                                          rest_start.toIso8601String()
+                                        ],
+                                        'rest_finish': [
+                                          rest_finish.toIso8601String()
+                                        ],
+                                        'leave': leave_time.toIso8601String(),
                                         'rest_count': 1,
-                                        'createdAt': Timestamp.fromDate(
-                                            attendance_time!),
+                                        'createdAt':
+                                            Timestamp.fromDate(attendance_time),
                                         'reason': inputText,
+                                        'approval': false,
                                       });
                                       Navigator.pop(context);
                                     },
