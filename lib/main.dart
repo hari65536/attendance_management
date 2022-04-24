@@ -45,11 +45,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      // デフォルトでは漢字用のフォントは中国語用になるので,日本語用のフォントを使うように指定
       theme: ThemeData.light().copyWith(
         textTheme: GoogleFonts.sawarabiGothicTextTheme(
           Theme.of(context).textTheme,
         ),
       ),
+      // ダークモードに対応
       darkTheme: ThemeData.dark().copyWith(
         textTheme: GoogleFonts.sawarabiGothicTextTheme(
           ThemeData(brightness: Brightness.dark).textTheme,
