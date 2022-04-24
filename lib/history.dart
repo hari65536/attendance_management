@@ -28,7 +28,7 @@ class _HistoryPageState extends State<HistoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('チャット'),
+        title: const Text('勤務履歴'),
       ),
       body: Column(
         children: [
@@ -69,21 +69,26 @@ class _HistoryPageState extends State<HistoryPage> {
           Container(
             padding: const EdgeInsets.all(8),
             child: Text(
-                '${view_month_start.year}年${view_month_start.month}月の勤務履歴一覧'),
+              '${view_month_start.year}年${view_month_start.month}月の勤務履歴一覧',
+              style: const TextStyle(
+                // fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
           ),
           Expanded(
             // FutureBuilder
             // 非同期処理の結果を元にWidgetを作れる
-            child: FutureBuilder<QuerySnapshot>(
+            child: StreamBuilder<QuerySnapshot>(
               // 投稿メッセージ一覧を取得（非同期処理）
               // 投稿日時でソート
-              future: FirebaseFirestore.instance
+              stream: FirebaseFirestore.instance
                   .collection('user1')
                   .orderBy('createdAt')
                   .startAt([view_month_start]).endAt([view_month_end])
                   // .where('createdAt', isGreaterThanOrEqualTo: view_month_start)
                   // .where('createdAt', isLessThan: view_month_start)
-                  .get(),
+                  .snapshots(),
               builder: (context, snapshot) {
                 // データが取得できた場合
                 if (snapshot.hasData) {
@@ -154,19 +159,6 @@ class _HistoryPageState extends State<HistoryPage> {
                               },
                             );
                           },
-                          // 自分の投稿メッセージの場合は削除ボタンを表示
-                          trailing: document['name'] == 'user1'
-                              ? IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () async {
-                                    // 投稿メッセージのドキュメントを削除
-                                    await FirebaseFirestore.instance
-                                        .collection('user1')
-                                        .doc(document.id)
-                                        .delete();
-                                  },
-                                )
-                              : null,
                         ),
                       );
                     }).toList(),
