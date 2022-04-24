@@ -45,7 +45,7 @@ dependencies:
   # カレンダー
   table_calendar: ^3.0.0
   # 状態管理
-  riverpod: ^1.0.3
+  flutter_riverpod: ^1.0.3
 
 dev_dependencies:
   flutter_test:
